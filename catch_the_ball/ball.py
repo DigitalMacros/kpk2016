@@ -1,4 +1,4 @@
-import tkinter
+from tkinter import *
 import time
 from random import choice, randint
 
@@ -9,6 +9,7 @@ ball_available_colors = '0123456789ABCDEF'#['green', 'blue', 'red', 'lightgray',
 balls_coord = []#список координат шариков
 balls_num = []#список номеров шариков
 points = 0
+time_game = int(time.time())+100 # время игры 100 секунд
 
 def click_ball(event):
     """ Обработчик событий мышки для игрового холста canvas
@@ -27,11 +28,15 @@ def click_ball(event):
 # нужен только R для начиления очков
 # за большой шарик меньше очков, чем за маленький
         num_oval, dx, dy, R = balls_coord[index]
+        points+=1000//R
+
+
         balls_num.pop(index)# удаляем элемент списка с номером объекта
         balls_coord.pop(index)# удаляем элемент списка с координатами объекта
-        points+=1000//R
         label['text']=int(points)
         create_random_ball()
+
+
     else: # если щелчок мимо, то вычитается 5 очков
         points-=5
         label['text']=int(points)
@@ -43,8 +48,14 @@ def move_all_balls(event):
         dx = randint(-1, 1)
         dy = randint(-1, 1)
         canvas.move(obj, dx, dy)"""
-    global balls_coord, points
+    global balls_coord, points, time_game
     """каждый шарик движется по своей траектории"""
+    label_time_val['text']=time_game-int(time.time())
+# Обработка времени игры. Если время вышло, то закрывается главное окно
+    if time_game-int(time.time())<=0:
+        root.destroy()
+
+
     for obj in balls_coord:
         x1, y1, x2, y2 =canvas.coords(obj[0])
         # проверяем, не выйдет ли шарик за границы холста
@@ -92,21 +103,27 @@ def init_ball_catch_game():
         create_random_ball()
 
 def init_main_window():
-    global root, canvas, label
+    global root, canvas, label, label_time_val
 
-    root = tkinter.Tk()
-    label_text = tkinter.Label(root, text = 'Набранные очки')
-    label_text.pack()
-    label = tkinter.Label(root, text=points)#привязка к переменной
-    label.pack()
-    canvas = tkinter.Canvas(root, background='white', width=400, height=400)
+    root = Tk()
+    label_text = Label(root, text = 'Набранные очки')
+    label_text.grid(row=1,column=0)
+    label = Label(root, text=points)#привязка к переменной
+    label.grid(row=2,column=0)
+    label_time = Label(root, text = 'Время игры')
+    label_time.grid(row=1,column=1)
+    label_time_val = Label(root, text=time_game)#привязка к переменной
+    label_time_val['text']=100
+    label_time_val.grid(row=2,column=1)
+    canvas = Canvas(root, background='white', width=400, height=400)
     canvas.bind("<Button>", click_ball)
     canvas.bind("<Motion>", move_all_balls)
-    canvas.pack()
+    canvas.grid(row=3, column=1)
 
 
 if __name__ == "__main__":
     init_main_window()
     init_ball_catch_game()
     root.mainloop()
+    print("Ваш результат:", int(points))
     print("Приходите поиграть ещё!")
