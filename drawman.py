@@ -46,9 +46,28 @@ def to_point(x, y):
     y_current = y
     t.goto(_drawman_scale*x_current, _drawman_scale*y_current)
 
+def circle(x, y, r, c='black'):
+    """
+    Рисование окружности.
+    :param x: координата x центра окружности
+    :param y: координата y центра окружности
+    :param r: радиус окружности
+    :param c: цвет линии окружности
+    Сначала перо поднято (необязательно) В конце перо поднято.
+    """
+    cur_r=r*_drawman_scale
+    cur_color=t.pencolor()
+    t.pencolor(c)
+    to_point(x, y-r)
+    pen_down()
+    t.circle(cur_r)
+    pen_up()
+    to_point(x, y)
+    t.pencolor(cur_color)
+
 
 init_drawman()
 if __name__ == '__main__':
     import time
     test_drawman()
-    time.sleep(10)
+ #   time.sleep(10)
