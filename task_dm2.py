@@ -14,5 +14,4 @@ while x <= 5:
     to_point(x, f(x))
     x += 0.1
 pen_up()
-
 sleep(10)
