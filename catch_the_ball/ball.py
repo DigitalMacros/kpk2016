@@ -5,11 +5,11 @@ from random import choice, randint
 ball_initial_number = 20
 ball_minimal_radius = 15
 ball_maximal_radius = 40
-ball_available_colors = '0123456789ABCD'#['green', 'blue', 'red', 'lightgray', '#FF00FF', '#FFFF00']
+ball_available_colors = '0123456789ABCD'# Набор символов для генерации случайного цвета
 balls_coord = []#список координат шариков
 balls_num = []#список номеров шариков
-points = 0
-time_game = int(time.time())+100 # время игры 100 секунд
+points = 0 # Набранные очки
+time_game = int(time.time())+100 # Время игры 100 секунд
 
 def click_ball(event):
     """ Обработчик событий мышки для игрового холста canvas
@@ -24,24 +24,17 @@ def click_ball(event):
     if x1 <= event.x <= x2 and y1 <= event.y <= y2:
         canvas.delete(obj)
         index = balls_num.index(num)# определяем индекс элемента списка, где храниться номер объекта
-# Не знаю как правильно достать элемент списка элемента списка
-# нужен только R для начиления очков
-# за большой шарик меньше очков, чем за маленький
-        R = balls_coord[index]
-        R = R[3]
+#  Определяем радиус удалённого шарика для начисления очков.
+#  За большой шарик меньше очков, чем за маленький
+        R = balls_coord[index][3]
         points+=1000//R
-
-
         balls_num.pop(index)# удаляем элемент списка с номером объекта
         balls_coord.pop(index)# удаляем элемент списка с координатами объекта
         label['text']=int(points)
         create_random_ball()
-
-
     else: # если щелчок мимо, то вычитается 5 очков
         points-=5
         label['text']=int(points)
-
 
 def move_all_balls(event):
     """ передвигает все шарики на чуть-чуть
@@ -51,12 +44,6 @@ def move_all_balls(event):
         canvas.move(obj, dx, dy)"""
     global balls_coord, points, time_game
     """каждый шарик движется по своей траектории"""
-    label_time_val['text']=time_game-int(time.time())
-# Обработка времени игры. Если время вышло, то закрывается главное окно
-    if time_game-int(time.time())<=0:
-        root.destroy()
-
-
     for obj in balls_coord:
         x1, y1, x2, y2 =canvas.coords(obj[0])
         # проверяем, не выйдет ли шарик за границы холста
@@ -89,12 +76,38 @@ def random_color():
     """
     :return: Случайный цвет из некоторого набора цветов
     """
-    #return choice(ball_available_colors)
     color = '#'
     for c in range(6):
         color = color + choice(ball_available_colors)
     return color
 
+def timer():
+    """
+    Осушествляет обработку времени игры: обратный отсчёт до 0 секунд.
+    По истечении времени перходит к завершению игры.
+    """
+    if time_game-int(time.time())==0:
+        label_time_val.config(text=0)
+        end_game()
+    else:
+        label_time_val.config(text=time_game-int(time.time()))
+        label_time_val.after(200, timer)
+
+def end_game():
+    """
+    Завершение игры. Удаляет все шарики. Выводит результат
+    """
+    canvas.delete('all')
+    text_game_over = 'Игра окончена. Ваш результат: ' + str(int(points))
+    label_game_over = Label(root, background='#ffffff', width=57, height=27, text=text_game_over)
+    label_game_over.grid(row=3, column=1)
+    label_game_over.bind("<Button>", exit_game)
+# Не удалось отключить методы для корректного завершения работы
+#    canvas.unbind("<Motion>", move_all_balls)
+#    canvas.unbind("<Button>", click_ball)
+
+def exit_game(event):
+    exit()
 
 def init_ball_catch_game():
     """
@@ -120,11 +133,10 @@ def init_main_window():
     canvas.bind("<Button>", click_ball)
     canvas.bind("<Motion>", move_all_balls)
     canvas.grid(row=3, column=1)
+    timer()
 
 
 if __name__ == "__main__":
     init_main_window()
     init_ball_catch_game()
     root.mainloop()
-    print("Ваш результат:", int(points))
-    print("Приходите поиграть ещё!")
