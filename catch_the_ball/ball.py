@@ -5,7 +5,7 @@ from random import choice, randint
 ball_initial_number = 20
 ball_minimal_radius = 15
 ball_maximal_radius = 40
-ball_available_colors = '0123456789ABCDEF'#['green', 'blue', 'red', 'lightgray', '#FF00FF', '#FFFF00']
+ball_available_colors = '0123456789ABCD'#['green', 'blue', 'red', 'lightgray', '#FF00FF', '#FFFF00']
 balls_coord = []#список координат шариков
 balls_num = []#список номеров шариков
 points = 0
