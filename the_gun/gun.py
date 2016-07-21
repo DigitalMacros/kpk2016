@@ -1,5 +1,6 @@
 from tkinter import *
 from random import choice, randint
+from math import *
 
 screen_width = 400
 screen_height = 300
@@ -72,6 +73,13 @@ class Gun:
         shell.fly()
         return shell
 
+def gun_turn(event):
+    dx = gun._x - event.x
+    dy = abs(gun._y - event.y)
+    ang = atan(dy / dx)
+    dx = gun._lx * cos(ang)
+    dy = screen_height - gun._ly * sin(ang)
+    canvas.coords(gun._avatar, gun._x, gun._y, dx, dy)
 
 def init_game():
     """
@@ -93,7 +101,7 @@ def init_main_window():
     canvas.grid(row=1, column=0, columnspan=3)
     scores_text.grid(row=0, column=2)
     canvas.bind('<ButtonRelease-3>', click_event_handler)
-
+    canvas.bind('<Motion>', gun_turn)
 
 def timer_event():
     # все периодические рассчёты, которые я хочу, делаю здесь
