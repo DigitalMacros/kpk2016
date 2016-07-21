@@ -6,10 +6,10 @@ screen_height = 300
 timer_delay = 100
 
 class Ball:
-    initial_number = 20
-    minimal_radius = 15
-    maximal_radius = 40
-    available_colors = ['green', 'blue', 'red']
+    initial_number = 10
+    minimal_radius = 10
+    maximal_radius = 30
+    available_colors = ['green', 'blue', 'red', 'orange', 'magenta']
 
     def __init__(self):
         """
@@ -23,54 +23,52 @@ class Ball:
         self._x = x
         self._y = y
         fillcolor = choice(Ball.available_colors)
-        self._avatar = canvas.create_oval(x, y, x+2*R, y+2*R,
-                                          width=1, fill=fillcolor,
-                                          outline=fillcolor)
-        self._Vx = randint(-2, +2)
-        self._Vy = randint(-2, +2)
+        self._avatar = canvas.create_oval(x, y, x+2*R, y+2*R, width=1, fill=fillcolor, outline=fillcolor)
+        if self._avatar > Ball.initial_number:
+            canvas.itemconfig(self._avatar, fill='black', outline='black')
+        self._Vx = randint(-3, +3)
+        self._Vy = randint(-3, +3)
 
     def fly(self):
         self._x += self._Vx
         self._y += self._Vy
         # отбивается от горизонтальных стенок
-        if self._x < 0:
-            self._x = 0
+        if self._x <= 1:
+            self._x = 1
             self._Vx = -self._Vx
-        elif self._x + 2*self._R >= screen_width:
+        elif self._x + 2*self._R >= screen_width - 1:
             self._x = screen_width - 2*self._R -1
             self._Vx = -self._Vx
         # отбивается от вертикальных стенок
-        if self._y < 0:
-            self._y = 0
+        if self._y <= 2:
+            self._y = 2
             self._Vy = -self._Vy
-        elif self._y + 2*self._R >= screen_height:
+        elif self._y + 2*self._R >= screen_height - 1:
             self._y = screen_height - 2*self._R  - 1
             self._Vy = -self._Vy
 
-        canvas.coords(self._avatar, self._x, self._y,
-                      self._x + 2*self._R, self._y + 2*self._R)
+        canvas.coords(self._avatar, self._x, self._y, self._x + 2*self._R, self._y + 2*self._R)
 
 
 class Gun:
     def __init__(self):
         self._x = 0
-        self._y = screen_height-1
+        self._y = screen_height+3
         self._lx = +30
         self._ly = -30
-        self._avatar = canvas.create_line(self._x, self._y,
-                                          self._x+self._lx,
-                                          self._y+self._ly)
+        self._avatar = canvas.create_line\
+            (self._x, self._y, self._x+self._lx, self._y+self._ly, width=5)
 
     def shoot(self):
         """
         :return возвращает объект снаряда (класса Ball)
         """
         shell = Ball()
-        shell._x = self._x + self._lx
-        shell._y = self._y + self._ly
+        shell._R = 5
+        shell._x = self._x + self._lx - shell._R
+        shell._y = self._y + self._ly - shell._R
         shell._Vx = self._lx/10
         shell._Vy = self._ly/10
-        shell._R = 5
         shell.fly()
         return shell
 
@@ -90,12 +88,11 @@ def init_main_window():
     root = Tk()
     root.title("Пушка")
     scores_value = IntVar()
-    canvas = Canvas(root, width=screen_width, height=screen_height,
-                    bg="white")
+    canvas = Canvas(root, width=screen_width, height=screen_height, bg="white")
     scores_text = Entry(root, textvariable=scores_value)
     canvas.grid(row=1, column=0, columnspan=3)
     scores_text.grid(row=0, column=2)
-    canvas.bind('<Button-1>', click_event_handler)
+    canvas.bind('<ButtonRelease-3>', click_event_handler)
 
 
 def timer_event():
