@@ -33,20 +33,23 @@ class Ball:
     def fly(self):
         self._x += self._Vx
         self._y += self._Vy
-        # отбивается от горизонтальных стенок
-        if self._x <= 1:
+         # отбивается от горизонтальных стенок
+        if self._x <= 1 and self._avatar <= Ball.initial_number:
             self._x = 1
             self._Vx = -self._Vx
         elif self._x + 2*self._R >= screen_width - 1:
             self._x = screen_width - 2*self._R -1
             self._Vx = -self._Vx
         # отбивается от вертикальных стенок
-        if self._y <= 2:
+        if self._y <= 2 and self._avatar <= Ball.initial_number:
             self._y = 2
             self._Vy = -self._Vy
         elif self._y + 2*self._R >= screen_height - 1:
             self._y = screen_height - 2*self._R  - 1
             self._Vy = -self._Vy
+        if self._avatar > Ball.initial_number and (self._x < -1 or self._x > screen_width+1 or self._y < -1 or self._y > screen_height+1):
+            shells_on_fly.pop(0)
+            canvas.delete(self._avatar)
 
         canvas.coords(self._avatar, self._x, self._y, self._x + 2*self._R, self._y + 2*self._R)
 
@@ -66,8 +69,8 @@ class Gun:
         """
         shell = Ball()
         shell._R = 5
-        shell._x = self._x + self._lx - shell._R
-        shell._y = self._y + self._ly - shell._R
+        shell._x = gun._lx
+        shell._y = gun._ly
         shell._Vx = self._lx/10
         shell._Vy = self._ly/10
         shell.fly()
@@ -76,9 +79,14 @@ class Gun:
 def gun_turn(event):
     dx = gun._x - event.x
     dy = abs(gun._y - event.y)
-    ang = atan(dy / dx)
-    dx = gun._lx * cos(ang)
-    dy = screen_height - gun._ly * sin(ang)
+    if dx == 0:
+        ang = pi / 2
+    else:
+        ang = atan(dy / dx)
+    dx = 30 * cos(ang)
+    dy = screen_height + 30 * sin(ang)
+    gun._lx = dx
+    gun._ly = dy
     canvas.coords(gun._avatar, gun._x, gun._y, dx, dy)
 
 def init_game():
