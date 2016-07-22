@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import messagebox
 import time
 from random import choice, randint
 
@@ -9,7 +10,7 @@ ball_available_colors = '0123456789ABCD'# Набор символов для г�
 balls_coord = []#список координат шариков
 balls_num = []#список номеров шариков
 points = 0 # Набранные очки
-time_game = int(time.time())+100 # Время игры 100 секунд
+time_game = int(time.time())+10 # Время игры 100 секунд
 
 def click_ball(event):
     """ Обработчик событий мышки для игрового холста canvas
@@ -98,16 +99,12 @@ def end_game():
     Завершение игры. Удаляет все шарики. Выводит результат
     """
     canvas.delete('all')
-    text_game_over = 'Игра окончена. Ваш результат: ' + str(int(points))
-    label_game_over = Label(root, background='#ffffff', width=57, height=27, text=text_game_over)
-    label_game_over.grid(row=3, column=1)
-    label_game_over.bind("<Button>", exit_game)
+    messagebox.showinfo("Game over", "Игра окончена\n\n Ваш результат " + str(int(points)))
+    exit()
+
 # Не удалось отключить методы для корректного завершения работы
 #    canvas.unbind("<Motion>", move_all_balls)
 #    canvas.unbind("<Button>", click_ball)
-
-def exit_game(event):
-    exit()
 
 def init_ball_catch_game():
     """
@@ -132,7 +129,7 @@ def init_main_window():
     canvas = Canvas(root, background='white', width=400, height=400)
     canvas.bind("<Button>", click_ball)
     canvas.bind("<Motion>", move_all_balls)
-    canvas.grid(row=3, column=1)
+    canvas.grid(row=3, column=0, columnspan=2)
     timer()
 
 
