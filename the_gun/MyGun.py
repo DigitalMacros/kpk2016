@@ -7,6 +7,7 @@ screen_height = 400
 timer_delay = 100
 area_vx_vy = 20 # Диапазон скоростей
 ang = pi/2
+button_1_press = False
 
 class Ball:
     """
@@ -78,22 +79,25 @@ class Shoot(Ball):
     """
     Класс снарядов на основе класса Ball
     """
-    def __init__(self, x=20, y=screen_height-20, r=5, color='black', vx=1, vy=1, ay=.1):
+    def __init__(self, x=20, y=screen_height-20, r=5, color='black', v=1, ang=pi/2, ay=.1):
         """
         Создание снаряда
+        скрость по оси OX умножается на cos,
+        а по оси OY на sin с учётом ускорения,
+        полёт рассматривается в поле тяготения Земли
         :param x: полопжение снаряда по оси OX
-        :param y: положение снаряда по оси OY 
+        :param y: положение снаряда по оси OY
         :param r: радиус снаряда
         :param color: цвет снаряда
-        :param vx: скорость снаряда по оси OX
-        :param vy: скорость снаряда по оси OY
+        :param v: вектор скорости
+        :param ang: угол выстрела
         :param ay: ускорение снаряда по оси OY
         """
         self._r = 2.5
         self._x = gun._lx
         self._y = gun._ly - 2 * self._r
-        self._vx = vx
-        self._vy = -vy
+        self._vx = v * cos(ang)
+        self._vy = -v * sin(ang)
         self._ay = ay
         super().__init__(self._x, self._y, self._r, self._vx, self._vy, 'black', self._ay)
 
@@ -114,10 +118,17 @@ def gun_turn(event):
     canvas.coords(gun._avatar, gun._x, gun._y, gun._lx, gun._ly)
 
 def click_event_handler(event):
-    global shells
-    shell = Shoot(vx=5, vy=5, ay=.05)
+    global shells, button_1_press
+    button_1_press = False
+    shell = Shoot(v=scale_gun_reload.get()/3, ang=ang, ay=.5) # Фактически передаётся угол выстрела в параметр vy
+    scale_gun_reload.set(0)
     shells.append(shell)
     shell.shell_fly()
+
+def gun_reload_init(event):
+    global button_1_press
+    scale_gun_reload.set(0)
+    button_1_press = True
 
 def timer_event():
     # все периодические рассчёты, которые я хочу, делаю здесь
@@ -125,6 +136,8 @@ def timer_event():
         ball.target_fly()
     for shell in shells:
         shell.shell_fly()
+    if button_1_press:
+        scale_gun_reload.set(scale_gun_reload.get() + 2)
     canvas.after(timer_delay, timer_event)
 
 def init_game():
@@ -138,16 +151,21 @@ def init_game():
     shells = []
 
 def init_main_window():
-    global root, canvas, scores_text, scores_value
+    global root, canvas, scores_text, scores_value, scale_gun_reload
     root = Tk()
     root.title("Пушка")
     scores_value = IntVar()
-    canvas = Canvas(root, width=screen_width, height=screen_height, bg="white")
-    scores_text = Entry(root, textvariable=scores_value)
-    canvas.grid(row=1, column=0, columnspan=3)
-    scores_text.grid(row=0, column=2)
+    canvas = Canvas(root, width=screen_width, height=screen_height, background='white', cursor='target')
+    canvas.grid(row=1, column=0, columnspan=4)
     canvas.bind('<ButtonRelease-1>', click_event_handler)
+    canvas.bind('<ButtonPress-1>', gun_reload_init)
     canvas.bind('<Motion>', gun_turn)
+    scores_text = Entry(root, textvariable=scores_value)
+    scores_text.grid(row=0, column=3)
+    label_result = Label(root, text = 'Набранные очки')
+    label_result.grid(row=0, column=2)
+    scale_gun_reload = Scale(root, orient='horizontal', length=200, from_=0, to=100, tickinterval=20)
+    scale_gun_reload.grid(row=0, column=1)
 
 if __name__ == "__main__":
     init_main_window()
