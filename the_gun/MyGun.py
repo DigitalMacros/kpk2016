@@ -175,6 +175,8 @@ def init_main_window():
     label_result.grid(row=0, column=2)
     scale_gun_reload = Scale(root, orient='horizontal', length=200, from_=0, to=100, tickinterval=20)
     scale_gun_reload.grid(row=0, column=1)
+    label_gun_reload = Label(root, text = 'Скорость выстрела')
+    label_gun_reload.grid(row=0, column=0)
 
 if __name__ == "__main__":
     init_main_window()
