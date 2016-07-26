@@ -105,6 +105,15 @@ class Shoot(Ball):
         self._x += self._vx
         self._y += self._vy
         self._vy += self._ay
+        if self._x > screen_width or self._y > screen_height+2*self._r or self._y < 0:
+            obj = canvas.find_closest(self._x, self._y)
+            num = obj[0]
+            canvas.delete(obj)
+            for i in range(len(shells)):
+                if shells[i]._number == num:
+                    index = i
+            shells.pop(index)
+
         canvas.coords(self._number, self._x, self._y, self._x + 2*self._r, self._y + 2*self._r)
 
 def gun_turn(event):
@@ -120,7 +129,7 @@ def gun_turn(event):
 def click_event_handler(event):
     global shells, button_1_press
     button_1_press = False
-    shell = Shoot(v=scale_gun_reload.get()/3, ang=ang, ay=.5) # Фактически передаётся угол выстрела в параметр vy
+    shell = Shoot(v=scale_gun_reload.get()/3, ang=ang, ay=.5)
     scale_gun_reload.set(0)
     shells.append(shell)
     shell.shell_fly()
