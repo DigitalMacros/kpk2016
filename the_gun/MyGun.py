@@ -5,7 +5,7 @@ from math import *
 screen_width = 600
 screen_height = 400
 timer_delay = 100
-area_vx_vy = 20 # Диапазон скоростей
+area_vx_vy = 5 # Диапазон скоростей
 ang = pi/2
 button_1_press = False
 
@@ -30,7 +30,7 @@ class Target(Ball):
     """
     Подкласс целей (шариков)
     """
-    initial_number = 10
+    initial_number = 20
     minimal_radius = 10
     maximal_radius = 30
     available_colors = ['green', 'blue', 'red', 'orange', 'magenta']
@@ -116,6 +116,21 @@ class Shoot(Ball):
 
         canvas.coords(self._number, self._x, self._y, self._x + 2*self._r, self._y + 2*self._r)
 
+def shell_meet_taget():
+    global scores_value
+    for i in range(len(balls)):
+        for j in range(len(shells)):
+            if balls[i]._x < shells[j]._x < balls[i]._x+2*balls[i]._r and\
+               balls[i]._y < shells[j]._y < balls[i]._y+2*balls[i]._y:
+                obj = canvas.find_closest(balls[i]._x, balls[i]._y)
+                canvas.delete(obj)
+                scores_value += 1000//balls[i]._r
+                balls.pop(i)
+                obj = canvas.find_closest(shells[j]._x, shells[j]._y)
+                canvas.delete(obj)
+                shells.pop(j)
+                scores_text['text'] = scores_value
+
 def gun_turn(event):
     global ang
     if abs(gun._x - event.x) == 0:
@@ -127,11 +142,13 @@ def gun_turn(event):
     canvas.coords(gun._avatar, gun._x, gun._y, gun._lx, gun._ly)
 
 def click_event_handler(event):
-    global shells, button_1_press
+    global shells, button_1_press, scores_value
     button_1_press = False
     shell = Shoot(v=scale_gun_reload.get()/3, ang=ang, ay=.5)
     scale_gun_reload.set(0)
     shells.append(shell)
+    scores_value -= 10
+    scores_text['text'] = scores_value
     shell.shell_fly()
 
 def gun_reload_init(event):
@@ -147,6 +164,7 @@ def timer_event():
         shell.shell_fly()
     if button_1_press:
         scale_gun_reload.set(scale_gun_reload.get() + 2)
+    shell_meet_taget()
     canvas.after(timer_delay, timer_event)
 
 def init_game():
@@ -163,13 +181,14 @@ def init_main_window():
     global root, canvas, scores_text, scores_value, scale_gun_reload
     root = Tk()
     root.title("Пушка")
-    scores_value = IntVar()
+#    scores_value = IntVar()
+    scores_value = 0
     canvas = Canvas(root, width=screen_width, height=screen_height, background='white', cursor='target')
     canvas.grid(row=1, column=0, columnspan=4)
     canvas.bind('<ButtonRelease-1>', click_event_handler)
     canvas.bind('<ButtonPress-1>', gun_reload_init)
     canvas.bind('<Motion>', gun_turn)
-    scores_text = Entry(root, textvariable=scores_value)
+    scores_text = Label(root, text=scores_value)
     scores_text.grid(row=0, column=3)
     label_result = Label(root, text = 'Набранные очки')
     label_result.grid(row=0, column=2)
