@@ -5,7 +5,7 @@ from math import *
 
 screen_width = 600          # ширина игрового поля
 screen_height = 400         # высота игрового поля
-timer_delay = 100           # интервал задержки (мс)
+timer_delay = 50           # интервал задержки (мс)
 area_vx_vy = 5              # Диапазон скоростей шариков
 ang = pi/2                  # угол поворота пушки
 button_1_press = False      # отслеживание нажатой ЛКМ
@@ -143,8 +143,9 @@ def shell_meet_taget():
     global scores_value
     for i in range(len(balls)):
         for j in range(len(shells)):
-            if balls[i]._x < shells[j]._x < balls[i]._x+2*balls[i]._r and\
-               balls[i]._y < shells[j]._y < balls[i]._y+2*balls[i]._y:
+            # l - расстояние между поверхностями снаряда и мишени
+            l = sqrt((balls[i]._x - shells[j]._x)**2 + (balls[i]._y - shells[j]._y)**2) - balls[i]._r - shells[j]._r
+            if l <= 0:
                 obj = canvas.find_closest(balls[i]._x, balls[i]._y)
                 canvas.delete(obj)
                 scores_value += 1000//balls[i]._r
