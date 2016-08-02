@@ -9,7 +9,6 @@ grid_color = 'lightgray'                # цвет бордюра клетки
 begin = False                           # флаг игры (изначально игра не запущена)
 time_sleep = 50                         # задержка таймера
 default_filename = 'map'                # имя сохраняемого (или считываемого) файла по умолчанию (можно изменять в программе)
-steps = False                           # флаг пошагового выполения
 steps_list = []                         # список координат живых клетов в пошаговом режиме
 
 
@@ -190,7 +189,7 @@ def load_of_file():
 
 def step_back():
     """
-    Выполняет один шаг незад ели возможно.
+    Выполняет один шаг незад если возможно.
     Возвращает предыдущую картину популяции и ждёт дальнейших действий пользователя.
     Работет только если было пошаговое вычисление вперёд.
     Хранение данных о всех изменения популяции решил не делать.
@@ -213,8 +212,7 @@ def step_forward():
     Выполняет один шаг вперёд.
     Вычисляет следующую картину популяции и ждёт дальнейших действий пользователя.
     """
-    global steps, steps_list
-    steps = True
+    global steps_list
     coord_list = []
     if begin:
         start_or_stop()
@@ -282,16 +280,15 @@ def time_event():
     (если изменений на поле нет, то программа останавливается)
     учитывается автоматическое или пошаговое выполнение
     """
-    global steps, begin
-    if begin or steps:
+    global begin
+    if begin:
         if field.next_population() == 0:
             if button_start_or_stop['text']=='Стоп':
                 start_or_stop()
             if not(1 in field.matrix):
-                steps = begin = False
+                begin = False
                 print('Все погибли...')
     canvas.after(time_sleep,time_event)
-    steps = False
 
 
 if __name__ == "__main__":
